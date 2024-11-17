@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KHU's Blog{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'post_list' %}">KHU's Blog</a></h1>
+    </header>
+    
+    <main>
+        {% block content %}
+        <!-- 페이지마다 달라질 수 있는 내용이 여기에 들어갑니다 -->
+        {% endblock %}
+    </main>
+</body>
+</html>

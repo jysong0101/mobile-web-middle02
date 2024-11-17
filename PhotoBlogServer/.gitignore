@@ -1,0 +1,12 @@
+__pycache__/
+blog/__pycache__/
+blog/migrations/
+mystie/__pycache__/
+
+venv/
+
+db.sqlite3
+/static/
+.DS_Store
+*.cpython-*
+Thumbs.db
