@@ -157,7 +157,7 @@ def run(
             else:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, "frame", 0)
                 
-            detected = [0 for i in range(len(names))] #added by kiokahn, 20220608
+            detected = [0 for _ in range(len(names))]  # added by kiokahn, 20220608
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / "labels" / p.stem) + ("" if dataset.mode == "image" else f"_{frame}")  # im.txt
@@ -176,14 +176,20 @@ def run(
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    detected[int(cls)] = 1 #added by kiokahn, 20220608
+                    detected[int(cls)] = 1  # added by kiokahn, 20220608
                     c = int(cls)  # integer class
-                    label = names[c] if hide_conf else f"{names[c]}"
-                    confidence = float(conf)
-                    confidence_str = f"{confidence:.2f}"
+                    label = None if hide_labels else (names[c] if hide_conf else f"{names[c]} {conf:.2f}")
+
+                    # Draw box in red if the class is 'person'
+                    if names[c].lower() == "person":
+                        box_color = (0, 0, 255)  # Red for 'person'
+                    else:
+                        box_color = colors(c, True)  # Default color
+
+                    annotator.box_label(xyxy, label, color=box_color)
 
                     if save_csv:
-                        write_to_csv(p.name, label, confidence_str)
+                        write_to_csv(p.name, names[c], f"{conf:.2f}")
 
                     if save_txt:  # Write to file
                         if save_format == 0:
@@ -196,13 +202,10 @@ def run(
                         with open(f"{txt_path}.txt", "a") as f:
                             f.write(("%g " * len(line)).rstrip() % line + "\n")
 
-                    if save_img or save_crop or view_img:  # Add bbox to image
-                        c = int(cls)  # integer class
-                        label = None if hide_labels else (names[c] if hide_conf else f"{names[c]} {conf:.2f}")
-                        annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
-            cd.add(names,detected,save_dir,im0) #added by kiokahn, 20220608
+            cd.add(names, detected, save_dir, im0)  # added by kiokahn, 20220608
+
             
             # Stream results
             im0 = annotator.result()
@@ -289,28 +292,6 @@ def parse_opt():
 
 
 def main(opt):
-    """
-    Executes YOLOv5 model inference based on provided command-line arguments, validating dependencies before running.
-
-    Args:
-        opt (argparse.Namespace): Command-line arguments for YOLOv5 detection. See function `parse_opt` for details.
-
-    Returns:
-        None
-
-    Note:
-        This function performs essential pre-execution checks and initiates the YOLOv5 detection process based on user-specified
-        options. Refer to the usage guide and examples for more information about different sources and formats at:
-        https://github.com/ultralytics/ultralytics
-
-    Example usage:
-
-    ```python
-    if __name__ == "__main__":
-        opt = parse_opt()
-        main(opt)
-    ```
-    """
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
     run(**vars(opt))
 

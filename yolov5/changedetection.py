@@ -32,14 +32,19 @@ class ChangeDetection:
         while i < len(self.result_prev):
             if self.result_prev[i] == 0 and detected_current[i] == 1:
                 change_flag = 1
-                self.title = names[i]
-                self.text += names[i] + ','
+                if names[i].lower() == "person":
+                    self.title = "Human Detected!!!!!!!!!!!! WARNING!!!!!!!!!"
+                    self.text = "Please check detection"
+                else:
+                    self.title = names[i]
+                    self.text += names[i] + ','
             i += 1
 
         self.result_prev = detected_current[:]  # 객체 검출 상태 저장
 
         if change_flag == 1:
             self.send(save_dir, image)
+
 
     def send(self, save_dir, image):
         now = datetime.now()
